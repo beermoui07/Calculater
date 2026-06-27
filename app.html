@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Hotel CalcuPro – ชุดคำนวณงานช่างโรงแรม</title>
+  <meta name="theme-color" content="#1A5F8A">
+  <meta name="description" content="ชุดคำนวณงานช่างโรงแรม ครบทุกระบบ พร้อมระบบบันทึกประวัติ">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1A5F8A;
+      --primary-dark: #0D3B57;
+      --primary-light: #2180BA;
+      --accent: #F0A500;
+      --success: #1A8A5F;
+      --danger: #C0392B;
+      --bg: #EFF4F8;
+      --card-bg: #FFFFFF;
+      --text: #1C2B3A;
+      --text-light: #5C7185;
+      --border: #D0DDE8;
+      --shadow-sm: 0 2px 8px rgba(26,95,138,0.08);
+      --shadow: 0 4px 16px rgba(26,95,138,0.12);
+      --shadow-lg: 0 8px 32px rgba(26,95,138,0.16);
+      --radius-sm: 8px;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --nav-h: 64px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(13,59,87,0.35);
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; }
+    .header-logo .logo-icon {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .header-logo h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.3px; }
+    .header-logo p { font-size: 0.72rem; opacity: 0.8; margin-top: 1px; }
+    .header-badge {
+      background: var(--accent);
+      color: var(--primary-dark);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== CONTAINER ===== */
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 16px 16px calc(var(--nav-h) + 20px);
+      width: 100%;
+    }
+
+    /* ===== SEARCH ===== */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .search-wrap .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 1rem; color: var(--text-light); pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      border: 2px solid transparent;
+      border-radius: 30px;
+      padding: 13px 16px 13px 42px;
+      font-size: 0.95rem;
+      background: white;
+      font-family: 'Sarabun', sans-serif;
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-wrap input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(26,95,138,0.1);
+    }
+    .search-wrap .clear-btn {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: var(--border); border: none; border-radius: 50%;
+      width: 22px; height: 22px; font-size: 0.7rem; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      color: var(--text-light);
+    }
+    .search-wrap.has-text .clear-btn { display: flex; }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      margin-top: 4px;
+      padding-left: 2px;
+    }
+
+    /* ===== CATEGORY GRID ===== */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 380px) {
+      .category-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .cat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px 6px 12px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      user-select: none;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .cat-card.has-tools { border-color: rgba(26,95,138,0.08); }
+    .cat-card.no-tools { opacity: 0.55; }
+    .cat-card::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--cat-color, var(--primary));
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .cat-card:active { transform: scale(0.94); box-shadow: var(--shadow-sm); }
+    .cat-card .cat-icon { font-size: 1.6rem; line-height: 1; }
+    .cat-card .cat-name { font-size: 0.72rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .cat-card .cat-count {
+      font-size: 0.62rem; color: var(--text-light);
+      background: var(--bg); border-radius: 10px; padding: 1px 6px;
+    }
+
+    /* ===== TOOL LIST ===== */
+    .tool-list { display: flex; flex-direction: column; gap: 10px; }
+    .tool-item {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      user-select: none;
+      border: 1.5px solid transparent;
+    }
+    .tool-item:active { transform: scale(0.98); }
+    .tool-item .tool-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .tool-item .tool-info { flex: 1; min-width: 0; }
+    .tool-item .tool-title { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .tool-item .tool-desc { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; }
+    .tool-item .tool-badge {
+      font-size: 0.65rem; padding: 2px 8px; border-radius: 10px;
+      background: #E8F4FF; color: var(--primary); font-weight: 600;
+    }
+    .tool-arrow { color: var(--text-light); font-size: 1rem; flex-shrink: 0; }
+
+    /* ===== BACK BUTTON ===== */
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: white; border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 8px 14px;
+      color: var(--primary); font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; margin-bottom: 16px;
+      transition: background 0.15s;
+      font-family: 'Sarabun', sans-serif;
+    }
+    .back-btn:active { background: var(--bg); }
+
+    /* ===== CALC HEADER ===== */
+    .calc-header {
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      color: white;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    .calc-header .ch-icon { font-size: 2rem; margin-bottom: 8px; }
+    .calc-header h2 { font-size: 1.1rem; font-weight: 700; }
+    .calc-header p { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
+
+    /* ===== FORM ===== */
+    .calc-form { display: flex; flex-direction: column; gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label {
+      font-size: 0.82rem; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .field-hint { font-size: 0.72rem; color: var(--text-light); margin-top: 2px; }
+
+    input[type="number"], input[type="text"], select {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px 14px;
+      font-size: 1rem;
+      background: white;
+      font-family: 'Sarabun', sans-serif;
+      color: var(--text);
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none; appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%235C7185' d='M7 9L2 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,95,138,0.1);
+    }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ===== BUTTON ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+      border: none; border-radius: 30px; color: white; font-weight: 700;
+      padding: 16px; font-size: 1rem;
+      box-shadow: 0 4px 14px rgba(26,95,138,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: pointer; width: 100%; font-family: 'Sarabun', sans-serif;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary:active { transform: scale(0.97); box-shadow: var(--shadow-sm); }
+
+    .btn-danger-outline {
+      background: none; border: 1.5px solid var(--danger); border-radius: 30px;
+      color: var(--danger); font-weight: 600; padding: 10px;
+      font-size: 0.85rem; cursor: pointer; width: 100%; font-family: 'Sarabun', sans-serif;
+      margin-top: 14px; transition: background 0.15s, color 0.15s;
+    }
+    .btn-danger-outline:active { background: var(--danger); color: white; }
+
+    /* ===== RESULT CARD ===== */
+    .result-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-top: 4px;
+      display: none;
+      animation: fadeUp 0.3s ease;
+    }
+    .result-card.show { display: block; }
+    .result-top {
+      background: linear-gradient(135deg, #E8F7EE, #F0FBF4);
+      border-bottom: 2px solid #BFE8CC;
+      padding: 18px 20px;
+    }
+    .result-label { font-size: 0.72rem; font-weight: 700; color: var(--success); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .result-value { font-size: 2rem; font-weight: 700; color: var(--primary-dark); line-height: 1.1; word-break: break-all; }
+    .result-unit { font-size: 1rem; font-weight: 400; color: var(--text-light); }
+    .result-body { padding: 14px 20px; }
+    .result-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0; border-bottom: 1px solid var(--bg);
+      font-size: 0.85rem;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row .rr-label { color: var(--text-light); }
+    .result-row .rr-val { font-weight: 600; color: var(--text); }
+    .result-warn {
+      background: #FFF8E0; border-left: 4px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 10px 14px; margin: 12px 20px;
+      font-size: 0.8rem; color: #7A5C00;
+    }
+    .result-error {
+      background: #FDECEA; border-left: 4px solid var(--danger);
+      border-radius: var(--radius-sm); padding: 12px 16px;
+      font-size: 0.85rem; color: var(--danger); margin-top: 4px;
+      display: none;
+    }
+    .result-error.show { display: block; }
+
+    /* ===== UNIT CONVERTER TABS ===== */
+    .conv-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .conv-tab {
+      padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+      border: 1.5px solid var(--border); background: white; cursor: pointer;
+      color: var(--text-light); transition: all 0.15s; font-family: 'Sarabun', sans-serif;
+    }
+    .conv-tab.active {
+      background: var(--primary); border-color: var(--primary); color: white;
+    }
+
+    /* ===== FORMULA CARD ===== */
+    .formula-card {
+      background: #F0F8FF; border: 1.5px solid #BFD9EF; border-radius: var(--radius-sm);
+      padding: 12px 16px; margin-bottom: 14px;
+      font-size: 0.78rem; color: var(--primary-dark);
+    }
+    .formula-card .fc-title { font-weight: 700; margin-bottom: 4px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center; padding: 50px 20px; color: var(--text-light);
+    }
+    .empty-state .es-icon { font-size: 3.5rem; display: block; margin-bottom: 14px; }
+    .empty-state .es-title { font-size: 1rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .empty-state .es-desc { font-size: 0.85rem; }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      height: var(--nav-h);
+      box-shadow: 0 -1px 0 var(--border), 0 -4px 20px rgba(0,0,0,0.06);
+      z-index: 100;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 4px;
+      color: var(--text-light); font-size: 0.68rem; font-weight: 600;
+      cursor: pointer; transition: color 0.15s; user-select: none;
+      padding: 8px 4px; position: relative;
+    }
+    .nav-item .nav-icon { font-size: 1.3rem; line-height: 1; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item.active::after {
+      content: '';
+      position: absolute; top: 0; left: 20%; right: 20%; height: 2.5px;
+      background: var(--primary); border-radius: 0 0 3px 3px;
+    }
+
+    /* ===== PROFILE / HISTORY SCREEN ===== */
+    .info-card {
+      background: white; border-radius: var(--radius); padding: 18px;
+      box-shadow: var(--shadow-sm); margin-bottom: 12px;
+    }
+    .info-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
+
+    .history-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--bg);
+    }
+    .history-item:last-child { border-bottom: none; }
+    .hi-icon { font-size: 1.2rem; }
+    .hi-info { flex: 1; }
+    .hi-title { font-size: 0.85rem; font-weight: 600; }
+    .hi-time { font-size: 0.72rem; color: var(--text-light); margin-top: 1px; }
+    .hi-result { font-size: 0.8rem; font-weight: 700; color: var(--primary); }
+
+    /* ===== SEARCH RESULTS ===== */
+    .search-results-title { font-size: 0.8rem; color: var(--text-light); margin-bottom: 10px; }
+    .no-results {
+      text-align: center; padding: 30px 20px; color: var(--text-light); font-size: 0.9rem;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade { animation: fadeUp 0.25s ease; }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .hidden { display: none !important; }
+
+    .cat-header {
+      background: white; border-radius: var(--radius); padding: 16px;
+      box-shadow: var(--shadow-sm); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .cat-header .ch-emoji { font-size: 2rem; }
+    .cat-header .ch-info h2 { font-size: 1rem; font-weight: 700; }
+    .cat-header .ch-info p { font-size: 0.78rem; color: var(--text-light); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <div class="logo-icon">⚙️</div>
+    <div>
+      <h1>Hotel CalcuPro</h1>
+      <p>ชุดคำนวณงานช่างโรงแรม</p>
+    </div>
+  </div>
+  <div class="header-badge">v2.0 WebApp</div>
+</header>
+
+<div class="container">
+
+  <!-- ===== HOME SCREEN ===== -->
+  <div id="screen-home" class="screen active animate-fade">
+    <div class="search-wrap" id="searchWrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="searchInput" placeholder="ค้นหาเครื่องมือคำนวณ..." autocomplete="off">
+      <button class="clear-btn" id="clearSearch">✕</button>
+    </div>
+
+    <div id="homeContent">
+      <div class="section-title">หมวดหมู่ทั้งหมด</div>
+      <div class="category-grid" id="categoryGrid"></div>
+      <div class="section-title">เครื่องมือที่ใช้บ่อย</div>
+      <div class="tool-list" id="recentTools"></div>
+    </div>
+
+    <div id="searchResults" class="hidden">
+      <div class="search-results-title" id="searchCount"></div>
+      <div class="tool-list" id="searchList"></div>
+      <div id="noResults" class="no-results hidden">🔍 ไม่พบเครื่องมือที่ตรงกับ "<span id="noResultTerm"></span>"</div>
+    </div>
+  </div>
+
+  <!-- ===== CATEGORY SCREEN ===== -->
+  <div id="screen-category" class="screen">
+    <button class="back-btn" id="backFromCat">← กลับหน้าแรก</button>
+    <div class="cat-header" id="catHeader"></div>
+    <div class="tool-list" id="catToolList"></div>
+    <div id="catEmpty" class="empty-state hidden">
+      <span class="es-icon">🚧</span>
+      <div class="es-title">กำลังพัฒนา</div>
+      <div class="es-desc">เครื่องมือในหมวดนี้จะพร้อมเร็วๆ นี้</div>
+    </div>
+  </div>
+
+  <!-- ===== CALCULATOR SCREEN ===== -->
+  <div id="screen-calc" class="screen">
+    <button class="back-btn" id="backFromCalc">← กลับ</button>
+    <div id="calcContent"></div>
+  </div>
+
+  <!-- ===== HISTORY SCREEN ===== -->
+  <div id="screen-history" class="screen animate-fade">
+    <div class="section-title">ประวัติการคำนวณ</div>
+    <div class="info-card">
+      <h3>สถิติการใช้งาน</h3>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-num" id="statTotal">0</div><div class="stat-label">ครั้งทั้งหมด</div></div>
+        <div class="stat-item"><div class="stat-num" id="statToday">0</div><div class="stat-label">วันนี้</div></div>
+        <div class="stat-item"><div class="stat-num" id="statTools">0</div><div class="stat-label">เครื่องมือที่ใช้</div></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <h3>📋 ล่าสุด</h3>
+      <div id="historyList"></div>
+      <button class="btn-danger-outline" id="clearHistoryBtn">🧹 ล้างประวัติทั้งหมด</button>
+    </div>
+  </div>
+
+  <!-- ===== PROFILE SCREEN ===== -->
+  <div id="screen-profile" class="screen animate-fade">
+    <div class="section-title">โปรไฟล์ & ตั้งค่า</div>
+    <div class="info-card">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:1.6rem;">👷</div>
+        <div>
+          <div style="font-weight:700;font-size:1rem;">ช่างประจำโรงแรม</div>
+          <div style="font-size:0.78rem;color:var(--text-light);margin-top:2px;">Engineering Department</div>
+        </div>
+      </div>
+      <div style="font-size:0.82rem;color:var(--text-light);background:var(--bg);border-radius:var(--radius-sm);padding:12px;">
+        Hotel CalcuPro v2.0 — ชุดเครื่องมือคำนวณสำหรับงานวิศวกรรมโรงแรม ครอบคลุมระบบน้ำ ไฟฟ้า ปรับอากาศ สระว่ายน้ำ และโครงสร้างอาคาร
+      </div>
+    </div>
+    <div class="info-card">
+      <h3>🛠️ เครื่องมือที่มี</h3>
+      <div id="profileToolCount" style="font-size:0.85rem;color:var(--text-light);margin-top:4px;"></div>
+    </div>
+    <div class="info-card" style="text-align:center;">
+      <div style="font-size:0.75rem;color:var(--text-light);">Hotel CalcuPro © 2026<br>ระบบ WebApp บันทึกข้อมูลแบบ Local Storage</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <div class="nav-item active" data-nav="home"><div class="nav-icon">🏠</div>หน้าแรก</div>
+  <div class="nav-item" data-nav="category"><div class="nav-icon">📐</div>หมวดหมู่</div>
+  <div class="nav-item" data-nav="history"><div class="nav-icon">📋</div>ประวัติ</div>
+  <div class="nav-item" data-nav="profile"><div class="nav-icon">👤</div>โปรไฟล์</div>
+</nav>
+
+<script>
+(function() {
+'use strict';
+
+var categories = [
+  { id: 'water',  name: 'น้ำ & ท่อ',    icon: '💧', color: '#1A7DB5', desc: 'อัตราไหล ท่อ แรงดันสูญเสีย' },
+  { id: 'hvac',   name: 'ปรับอากาศ',    icon: '❄️', color: '#0D9ECC', desc: 'BTU โหลด ประสิทธิภาพ COP' },
+  { id: 'elect',  name: 'ไฟฟ้า',        icon: '⚡', color: '#F0A500', desc: 'โหลด กระแส เบรกเกอร์ PF' },
+  { id: 'sanit',  name: 'สุขาภิบาล',   icon: '🚿', color: '#1AA57D', desc: 'บำบัดน้ำเสีย บ่อพัก บ่อเกรอะ' },
+  { id: 'fire',   name: 'ดับเพลิง',     icon: '🔥', color: '#C0392B', desc: 'หัวสปริงเกลอร์ ท่อดับเพลิง' },
+  { id: 'chem',   name: 'เคมี',         icon: '🧪', color: '#8B5CF6', desc: 'น้ำยา ความเข้มข้น' },
+  { id: 'steam',  name: 'ไอน้ำ',        icon: '💨', color: '#6B7280', desc: 'แรงดัน อุณหภูมิ' },
+  { id: 'laundry',name: 'ซักรีด',       icon: '👕', color: '#EC4899', desc: 'น้ำ พลังงาน สารเคมี' },
+  { id: 'pool',   name: 'สระว่ายน้ำ',  icon: '🏊', color: '#0891B2', desc: 'คลอรีน กรด หมุนเวียนน้ำ' },
+  { id: 'noise',  name: 'เสียง',        icon: '🔊', color: '#7C3AED', desc: 'dB ฉนวน สั่นสะเทือน' },
+  { id: 'gas',    name: 'แก๊ส',         icon: '⛽', color: '#D97706', desc: 'ท่อแก๊ส แรงดัน ปริมาณ' },
+  { id: 'admin',  name: 'บริหาร',       icon: '📊', color: '#1A5F8A', desc: 'งบ PM ต้นทุนรายปี' },
+  { id: 'convert',name: 'ตัวแปลง',      icon: '🔄', color: '#374151', desc: 'แปลงหน่วยวิศวกรรมอาคาร' },
+  { id: 'struct', name: 'โครงสร้าง',   icon: '🏗️', color: '#92400E', desc: 'น้ำหนัก พื้นที่ ปริมาตรถัง' }
+];
+
+var calculators = {
+  water: [
+    { id: 'flowrate',    title: 'อัตราไหล (Flow Rate)',     icon: '💧', desc: 'คำนวณจากถัง/ความเร็ว/เส้นผ่าศูนย์กลาง' },
+    { id: 'pipesize',    title: 'ขนาดท่อที่เหมาะสม',       icon: '🔧', desc: 'แนะนำเส้นผ่าศูนย์กลางท่อจากอัตราไหล' },
+    { id: 'pressloss',   title: 'แรงดันสูญเสียในท่อ',      icon: '📉', desc: 'คำนวณสูญเสียแรงดัน (Swamee-Jain)' }
+  ],
+  hvac: [
+    { id: 'btu',         title: 'ขนาด BTU ห้อง',           icon: '❄️', desc: 'คำนวณแอร์จากพื้นที่/ปัจจัยห้อง' },
+    { id: 'cop',         title: 'ประสิทธิภาพแอร์ (COP)',   icon: '📊', desc: 'คำนวณ COP & EER ของเครื่องปรับอากาศ' }
+  ],
+  elect: [
+    { id: 'loadcurrent', title: 'กระแสโหลดไฟฟ้า',          icon: '⚡', desc: 'คำนวณกระแส 1 เฟส / 3 เฟส มอเตอร์' },
+    { id: 'cbsize',      title: 'ขนาด CB & สายไฟ',         icon: '🔌', desc: 'แนะนำ Circuit Breaker + ขนาดสาย THW' },
+    { id: 'powerfactor', title: 'Power Factor Correction',  icon: '🔋', desc: 'คำนวณ Capacitor เพื่อปรับค่า PF' }
+  ],
+  sanit: [
+    { id: 'septictank',  title: 'ขนาดบ่อเกรอะ-บ่อซึม',    icon: '🚿', desc: 'คำนวณจากจำนวนผู้ใช้งานและประเภทอาคาร' }
+  ],
+  fire: [
+    { id: 'sprinkler',   title: 'หัวสปริงเกลอร์',          icon: '🔥', desc: 'จำนวนหัว & อัตราไหลน้ำดับเพลิงรวม' }
+  ],
+  pool: [
+    { id: 'chlorine',    title: 'คลอรีนสระว่ายน้ำ',        icon: '🏊', desc: 'คำนวณกรัมคลอรีนที่ต้องเติมตามปริมาตร' },
+    { id: 'poolcirc',    title: 'ปั๊มหมุนเวียนน้ำสระ',     icon: '🔄', desc: 'คำนวณอัตราไหลปั๊มลิตร/นาที จากขนาดสระ' }
+  ],
+  admin: [
+    { id: 'pmcost',      title: 'คำนวณต้นทุน PM',          icon: '📊', desc: 'ค่าแรงช่าง + อะไหล่ + ต้นทุนรวมรายปี' }
+  ],
+  convert: [
+    { id: 'unitconv',    title: 'แปลงหน่วยวิศวกรรม',       icon: '🔄', desc: 'ความดัน / อัตราไหล / อุณหภูมิ / กำลังไฟฟ้า' }
+  ],
+  struct: [
+    { id: 'area3d',      title: 'พื้นที่ & ปริมาตร',       icon: '📐', desc: 'คำนวณสี่เหลี่ยม วงกลม ทรงกระบอก ถังน้ำ' }
+  ]
+};
+
+var recentIds = ['flowrate', 'btu', 'loadcurrent', 'unitconv', 'chlorine'];
+var calcHistory = [];
+var currentScreen = 'home';
+var currentCatId = null;
+var currentCalcId = null;
+
+// Load History from LocalStorage
+function initHistory() {
+  try {
+    var stored = localStorage.getItem('hotel_calcupro_history');
+    if (stored) {
+      calcHistory = JSON.parse(stored);
+      calcHistory.forEach(function(h) { h.time = new Date(h.time); });
+    } else {
+      calcHistory = [];
+    }
+  } catch(e) {
+    calcHistory = [];
+  }
+}
+
+function saveHistoryToStorage() {
+  try {
+    localStorage.setItem('hotel_calcupro_history', JSON.stringify(calcHistory));
+  } catch(e) {
+    console.error("Cannot save history:", e);
+  }
+}
+
+function findCat(id) { return categories.find(function(c) { return c.id === id; }); }
+function findCalc(calcId) {
+  for (var catId in calculators) {
+    var found = calculators[catId].find(function(c) { return c.id === calcId; });
+    if (found) return { calc: found, catId: catId };
+  }
+  return null;
+}
+function allTools() {
+  var tools = [];
+  categories.forEach(function(cat) {
+    (calculators[cat.id] || []).forEach(function(calc) {
+      tools.push({ calc: calc, catId: cat.id, catName: cat.name, catIcon: cat.icon });
+    });
+  });
+  return tools;
+}
+function totalToolCount() {
+  return Object.values(calculators).reduce(function(s, a) { return s + a.length; }, 0);
+}
+
+function addHistory(calcId, resultText) {
+  var info = findCalc(calcId);
+  if (!info) return;
+  calcHistory.unshift({ calcId: calcId, title: info.calc.title, icon: info.calc.icon, result: resultText, time: new Date() });
+  if (calcHistory.length > 30) calcHistory.pop();
+  saveHistoryToStorage();
+  updateHistoryScreen();
+}
+
+function timeAgo(d) {
+  var diff = (new Date() - d) / 1000;
+  if (diff < 60) return 'เมื่อสักครู่';
+  if (diff < 3600) return Math.floor(diff/60) + ' นาทีที่แล้ว';
+  if (diff < 86400) return Math.floor(diff/3600) + ' ชั่วโมงที่แล้ว';
+  return d.toLocaleDateString('th-TH') + ' ' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  var s = document.getElementById('screen-' + name);
+  if (s) { s.classList.add('active'); }
+  currentScreen = name;
+
+  document.querySelectorAll('.nav-item').forEach(function(n) {
+    n.classList.remove('active');
+    if (n.dataset.nav === name) n.classList.add('active');
+  });
+
+  if (name === 'category' || name === 'calc') {
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+      if (n.dataset.nav === 'category') n.classList.add('active');
+    });
+  }
+}
+
+function openCategory(catId) {
+  currentCatId = catId;
+  currentCalcId = null;
+  var cat = findCat(catId);
+  if (!cat) return;
+  var calcs = calculators[catId] || [];
+
+  document.getElementById('catHeader').innerHTML =
+    '<div class="ch-emoji">' + cat.icon + '</div>' +
+    '<div class="ch-info"><h2>' + cat.name + '</h2><p>' + cat.desc + ' • ' + calcs.length + ' เครื่องมือ</p></div>';
+
+  var list = document.getElementById('catToolList');
+  if (calcs.length === 0) {
+    list.innerHTML = '';
+    document.getElementById('catEmpty').classList.remove('hidden');
+  } else {
+    document.getElementById('catEmpty').classList.add('hidden');
+    list.innerHTML = calcs.map(function(c) {
+      return '<div class="tool-item" data-calc="' + c.id + '">' +
+        '<div class="tool-icon">' + c.icon + '</div>' +
+        '<div class="tool-info"><div class="tool-title">' + c.title + '</div><div class="tool-desc">' + c.desc + '</div></div>' +
+        '<div class="tool-badge">คำนวณ</div>' +
+        '</div>';
+    }).join('');
+    list.querySelectorAll('.tool-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        openCalculator(catId, this.dataset.calc);
+      });
+    });
+  }
+  showScreen('category');
+}
+
+function openCalculator(catId, calcId) {
+  currentCatId = catId;
+  currentCalcId = calcId;
+  var content = document.getElementById('calcContent');
+  content.innerHTML = renderCalc(calcId);
+  attachCalcEvents(calcId);
+  showScreen('calc');
+}
+
+function renderHome() {
+  var grid = document.getElementById('categoryGrid');
+  grid.innerHTML = categories.map(function(cat) {
+    var calcs = calculators[cat.id] || [];
+    var hasTools = calcs.length > 0;
+    return '<div class="cat-card ' + (hasTools ? 'has-tools' : 'no-tools') + '" data-category="' + cat.id + '" style="--cat-color:' + cat.color + '">' +
+      '<div class="cat-icon">' + cat.icon + '</div>' +
+      '<div class="cat-name">' + cat.name + '</div>' +
+      '<div class="cat-count">' + calcs.length + ' เมนู</div>' +
+      '</div>';
+  }).join('');
+  grid.querySelectorAll('.cat-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      openCategory(this.dataset.category);
+    });
+  });
+
+  var recent = document.getElementById('recentTools');
+  recent.innerHTML = recentIds.map(function(id) {
+    var t = findCalc(id);
+    if (!t) return '';
+    return '<div class="tool-item" data-calc="' + t.calc.id + '" data-cat="' + t.catId + '">' +
+      '<div class="tool-icon">' + t.calc.icon + '</div>' +
+      '<div class="tool-info"><div class="tool-title">' + t.calc.title + '</div><div class="tool-desc">' + t.calc.desc + '</div></div>' +
+      '<div class="tool-arrow">›</div>' +
+      '</div>';
+  }).join('');
+  recent.querySelectorAll('.tool-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      openCalculator(this.dataset.cat, this.dataset.calc);
+    });
+  });
+}
+
+function updateHistoryScreen() {
+  var today = new Date().toDateString();
+  var todayCount = calcHistory.filter(function(h) { return h.time.toDateString() === today; }).length;
+  var uniqueTools = new Set(calcHistory.map(function(h) { return h.calcId; })).size;
+
+  document.getElementById('statTotal').textContent = calcHistory.length;
+  document.getElementById('statToday').textContent = todayCount;
+  document.getElementById('statTools').textContent = uniqueTools;
+
+  var list = document.getElementById('historyList');
+  if (calcHistory.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px 0"><span class="es-icon" style="font-size:2rem">📋</span><div class="es-desc">ยังไม่มีประวัติการคำนวณ</div></div>';
+    document.getElementById('clearHistoryBtn').style.display = 'none';
+    return;
+  }
+  document.getElementById('clearHistoryBtn').style.display = 'block';
+  list.innerHTML = calcHistory.slice(0, 15).map(function(h) {
+    return '<div class="history-item">' +
+      '<div class="hi-icon">' + h.icon + '</div>' +
+      '<div class="hi-info"><div class="hi-title">' + h.title + '</div><div class="hi-time">' + timeAgo(h.time) + '</div></div>' +
+      '<div class="hi-result">' + h.result + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ===================================================
+// CALC RENDERERS & LAYOUTS
+// ===================================================
+function renderCalc(id) {
+  switch(id) {
+    case 'flowrate':    return renderFlowRate();
+    case 'pipesize':    return renderPipeSize();
+    case 'pressloss':   return renderPressLoss();
+    case 'btu':         return renderBTU();
+    case 'cop':         return renderCOP();
+    case 'loadcurrent': return renderLoadCurrent();
+    case 'cbsize':      return renderCBSize();
+    case 'powerfactor': return renderPowerFactor();
+    case 'septictank':  return renderSepticTank();
+    case 'sprinkler':   return renderSprinkler();
+    case 'chlorine':    return renderChlorine();
+    case 'poolcirc':    return renderPoolCirc();
+    case 'pmcost':      return renderPMCost();
+    case 'unitconv':    return renderUnitConv();
+    case 'area3d':      return renderArea3D();
+    default: return '<div class="empty-state"><span class="es-icon">⚠️</span><div class="es-title">กำลังพัฒนาเครื่องมือระบบนี้</div></div>';
+  }
+}
+
+function calcHeader(icon, title, desc) {
+  return '<div class="calc-header"><div class="ch-icon">' + icon + '</div><h2>' + title + '</h2><p>' + desc + '</p></div>';
+}
+function field(id, label, val, type, extra) {
+  return '<div class="field-group"><label class="field-label" for="' + id + '">' + label + '</label>' +
+    '<input type="' + (type||'number') + '" id="' + id + '" value="' + val + '" ' + (extra||'') + ' inputmode="decimal"></div>';
+}
+function sel(id, label, options) {
+  return '<div class="field-group"><label class="field-label" for="' + id + '">' + label + '</label>' +
+    '<select id="' + id + '">' + options.map(function(o) {
+      return '<option value="' + o.v + '">' + o.l + '</option>';
+    }).join('') + '</select></div>';
+}
+function resultCard(id) {
+  return '<div class="result-error" id="' + id + 'Err"></div><div class="result-card" id="' + id + 'Result"></div>';
+}
+function showError(id, msg) {
+  var e = document.getElementById(id + 'Err');
+  var r = document.getElementById(id + 'Result');
+  e.textContent = '⚠️ ' + msg; e.classList.add('show');
+  r.classList.remove('show');
+}
+function showResult(id, mainVal, mainUnit, rows, warn) {
+  var e = document.getElementById(id + 'Err');
+  var r = document.getElementById(id + 'Result');
+  e.classList.remove('show');
+  var rowsHtml = (rows||[]).map(function(row) {
+    return '<div class="result-row"><span class="rr-label">' + row[0] + '</span><span class="rr-val">' + row[1] + '</span></div>';
+  }).join('');
+  var warnHtml = warn ? '<div class="result-warn">⚠️ ' + warn + '</div>' : '';
+  r.innerHTML = '<div class="result-top"><div class="result-label">ผลการคำนวณ</div>' +
+    '<div class="result-value">' + mainVal + ' <span class="result-unit">' + mainUnit + '</span></div></div>' +
+    warnHtml + '<div class="result-body">' + rowsHtml + '</div>';
+  r.classList.add('show');
+}
+
+// HTML ของแต่ละเครื่องมือคำนวณ
+function renderFlowRate() {
+  return calcHeader('💧','อัตราไหล (Flow Rate)','คำนวณอัตราการไหลของน้ำในท่อ') +
+    '<div class="formula-card"><div class="fc-title">📐 สูตรที่ใช้</div>จับเวลาถัง: Q = V ÷ t × 60 (L/min)<br>คำนวณพื้นที่ท่อ: Q = v × (π/4) × d² × 60 × 1000</div>' +
+    '<form class="calc-form" id="f-flowrate">' +
+    sel('flow_method','วิธีการวัดผลหน้างาน',[{v:'bucket',l:'จับเวลาความจุถังน้ำ'},{v:'velocity',l:'คำนวณจากความเร็วน้ำ & ขนาดท่อ'}]) +
+    '<div id="flow_bucket">' + field('flow_vol','ปริมาตรถังน้ำหรือภาชนะ (ลิตร)','20','number','min="0.1" step="any"') + field('flow_time','เวลาที่รองน้ำจนเต็ม (วินาที)','15','number','min="0.1" step="any"') + '</div>' +
+    '<div id="flow_velocity" style="display:none">' + field('flow_v','ความเร็วน้ำเฉลี่ย (m/s)','1.2','number','min="0" step="any"') + field('flow_dia','ขนาดเส้นผ่าศูนย์กลางท่อ (นิ้ว)','2','number','min="0.1" step="any"') + '</div>' +
+    '<button type="submit" class="btn-primary">คำนวณผลอัตราไหล</button></form>' + resultCard('flow');
+}
+
+
+function attachPipeSize() {
+  onSubmit('f-pipesize', function() {
+    var q = v('ps_flow'), type = sv('ps_type');
+    if (isNaN(q) || q <= 0) return showError('ps','กรุณาระบุอัตราการไหลน้ำในท่อเป็นตัวเลขที่ถูกต้อง');
+    var qMs = q / 60000;
+    var speeds = { supply: [1.0, 1.5, 2.0], return: [0.5, 1.0, 1.5], fire: [2.0, 3.0, 4.0] };
+    var s = speeds[type] || [1.0, 1.5, 2.0];
+    var dRec = Math.sqrt(4 * qMs / (Math.PI * s[1])) * 1000;
+    var pipes = [15,20,25,32,40,50,65,80,100,125,150,200];
+    var pRec = pipes.find(function(p) { return p >= dRec; }) || pipes[pipes.length-1];
+
+    addHistory('pipesize', pRec + ' mm');
+    showResult('ps', pRec.toString(), 'mm (พิกัดท่อแนะนำ)', [
+      ['ขนาดเส้นผ่าศูนย์กลางท่อภายในคำนวณได้', dRec.toFixed(1) + ' mm'],
+      ['ความเร็วที่ใช้ออกแบบคำนวณ', s[1] + ' m/s'],
+      ['พิกัดอัตราไหลระบบท่อ', q + ' L/min']
+    ]);
+  });
+}
+
+function attachPressLoss() {
+  onSubmit('f-pressloss', function() {
+    var q = v('pl_flow'), dia_in = v('pl_dia'), L = v('pl_len'), roughness = parseFloat(sv('pl_mat'));
+    if (isNaN(q) || isNaN(dia_in) || isNaN(L) || q <= 0 || dia_in <= 0 || L <= 0) return showError('pl','กรุณาใส่ข้อมูลมิติต่างๆ ของเส้นท่อให้ครบถ้วน');
+    var D = dia_in * 0.0254;
+    var A = Math.PI * D * D / 4;
+    var vel = (q / 60000) / A;
+    var Re = (1000 * vel * D) / 0.001;
+    if (Re < 2300) Re = 2300; 
+    var f = 0.25 / Math.pow(Math.log10(roughness / (3.7 * D) + 5.74 / Math.pow(Re, 0.9)), 2);
+    var dP = f * (L / D) * ((1000 * vel * vel) / 2) / 1000; 
+    var dP_bar = dP / 100;
+
+    addHistory('pressloss', dP_bar.toFixed(3) + ' bar');
+    showResult('pl', dP_bar.toFixed(4), 'bar', [
+      ['แรงดันสูญเสียหน่วยกิโลปาสคาล (kPa)', dP.toFixed(2)],
+      ['เมตรน้ำ (mH₂O Loss)', (dP / 9.81).toFixed(2)],
+      ['ความเร็วของน้ำในเส้นท่อ', vel.toFixed(2) + ' m/s'],
+      ['Friction Factor (f)', f.toFixed(5)]
+    ], vel > 2.5 ? 'ความเร็วน้ำหน้างานสูงเกิน 2.5 m/s เสี่ยงต่อการเกิด Water Hammer และเสียงดังรบกวน' : null);
+  });
+}
+
+function attachBTU() {
+  onSubmit('f-btu', function() {
+    var w = v('btu_w'), l = v('btu_l'), h = v('btu_h'), factor = parseFloat(sv('btu_type')), floorMult = parseFloat(sv('btu_floor'));
+    if (isNaN(w) || isNaN(l) || w <= 0 || l <= 0) return showError('btu','กรุณากรอกระยะกว้าง ยาว ของห้องอาคารให้ครบถ้วน');
+    var area = w * l;
+    var btu = area * factor * floorMult;
+    var acSizes = [9000, 12000, 18000, 24000, 30000, 36000, 48000, 60000];
+    var recommended = acSizes.find(function(s) { return s >= btu; }) || btu;
+
+    addHistory('btu', recommended.toLocaleString() + ' BTU');
+    showResult('btu', recommended.toLocaleString(), 'BTU/hr', [
+      ['พื้นที่หน้าตัดของห้อง', area.toFixed(1) + ' ตร.ม.'],
+      ['โหลดความเย็นคำนวณสุทธิ', Math.round(btu).toLocaleString() + ' BTU'],
+      ['ตันความเย็น (TR Equivalent)', (btu / 12000).toFixed(2) + ' ตัน']
+    ]);
+  });
+}
+
+function attachCOP() {
+  onSubmit('f-cop', function() {
+    var cool_btu = v('cop_cool'), pw = v('cop_power');
+    if (isNaN(cool_btu) || isNaN(pw) || cool_btu <= 0 || pw <= 0) return showError('cop','กรุณาใส่ขนาดบีทียูและวัตต์ไฟฟ้าพลังงาน');
+    var cop = (cool_btu * 0.000293) / (pw / 1000);
+    var eer = cool_btu / pw;
+
+    addHistory('cop', 'COP ' + cop.toFixed(2));
+    showResult('cop', cop.toFixed(2), 'COP', [
+      ['ค่า EER (BTU/W)', eer.toFixed(2)],
+      ['พลังงานทำความเย็นเทียบเท่า', ((cool_btu * 0.000293)).toFixed(2) + ' kW_th'],
+      ['เกณฑ์ประเมินแอร์', cop >= 3.4 ? '🌟 เครื่องประสิทธิภาพสูงประหยัดพลังงานมาก' : cop >= 2.5 ? '✅ ผ่านเกณฑ์มาตรฐานทั่วไป' : '⚠️ ประสิทธิภาพต่ำ กินพลังงานสูง']
+    ]);
+  });
+}
+
+function attachLoadCurrent() {
+  onSubmit('f-loadcurrent', function() {
+    var phase = parseInt(sv('lc_phase')), P = v('lc_power'), V = v('lc_voltage'), pf = v('lc_pf'), eff = v('lc_eff') / 100;
+    if (isNaN(P) || isNaN(V) || isNaN(pf) || P <= 0 || V <= 0 || pf <= 0) return showError('lc','กรุณากรอกข้อมูลพารามิเตอร์มอเตอร์ไฟฟ้าให้ครบถ้วน');
+    var Pw = (P * 1000) / eff;
+    var I = phase === 1 ? Pw / (V * pf) : Pw / (Math.sqrt(3) * V * pf);
+
+    addHistory('loadcurrent', I.toFixed(1) + ' A');
+    showResult('lc', I.toFixed(2), 'A (Full Load)', [
+      ['กระแสไฟคำนวณต่อเนื่อง', I.toFixed(2) + ' แอมแปร์'],
+      ['ขนาดพิกดเบรกเกอร์ขั้นต่ำแนะนำ (125%)', Math.ceil((I * 1.25) / 5) * 5 + ' A'],
+      ['กำลังไฟฟ้าปรากฏที่เกิดขึ้น (Apparent Power)', (Pw / 1000 / pf).toFixed(2) + ' kVA']
+    ]);
+  });
+}
+
+function attachCBSize() {
+  onSubmit('f-cbsize', function() {
+    var phase = parseInt(sv('cb_phase')), P = v('cb_power'), V = v('cb_voltage'), pf = v('cb_pf'), factor = parseFloat(sv('cb_install'));
+    if (isNaN(P) || isNaN(V) || P <= 0 || V <= 0) return showError('cb','กรุณาใส่พิกัดไฟฟ้ากำลังรวมหน่วยกิโลวัตต์');
+    var Pw = P * 1000;
+    var I = phase === 1 ? Pw / (V * pf) : Pw / (Math.sqrt(3) * V * pf);
+    var I_design = I * 1.25;
+    var I_cb = Math.ceil(I_design / 5) * 5;
+    if (I_cb < 15) I_cb = 16; 
+
+    var wireSizes = [
+      {A: 11, mm2: 1}, {A: 16, mm2: 1.5}, {A: 21, mm2: 2.5}, {A: 29, mm2: 4},
+      {A: 37, mm2: 6}, {A: 51, mm2: 10}, {A: 70, mm2: 16}, {A: 95, mm2: 25},
+      {A: 115, mm2: 35}, {A: 145, mm2: 50}, {A: 185, mm2: 70}, {A: 230, mm2: 95}
+    ];
+    var I_wire = I_design / factor;
+    var wire = wireSizes.find(function(w) { return w.A >= I_wire; }) || wireSizes[wireSizes.length-1];
+
+    addHistory('cbsize', 'CB ' + I_cb + 'A / ' + wire.mm2 + 'mm²');
+    showResult('cb', I_cb.toString(), 'A (Main CB)', [
+      ['ขนาดสายไฟแกนทองแดงแนะนำ', wire.mm2 + ' mm² (สายไฟประเภท THW)'],
+      ['กระแสต่อน้ำหนักรวมต่อเนื่อง', I.toFixed(2) + ' A'],
+      ['ขนาดกระแสไฟหลังปรับตัวคูณ Derate สาย', I_wire.toFixed(1) + ' A']
+    ]);
+  });
+}
+
+function attachPowerFactor() {
+  onSubmit('f-pf', function() {
+    var P = v('pf_power'), pf1 = v('pf_current'), pf2 = v('pf_target'), Vline = v('pf_volt');
+    if (isNaN(P) || pf1 <= 0 || pf2 <= 0 || pf1 >= pf2) return showError('pf','ค่าตัวประกอบเป้าหมายต้องมีค่ามากกว่าค่าพิกัดปัจจุบัน');
+    var phi1 = Math.acos(pf1), phi2 = Math.acos(pf2);
+    var Qc = P * (Math.tan(phi1) - Math.tan(phi2));
+    var C = (Qc * 1000000) / (2 * Math.PI * 50 * Vline * Vline);
+
+    addHistory('powerfactor', Qc.toFixed(1) + ' kVAR');
+    showResult('pf', Qc.toFixed(2), 'kVAR', [
+      ['ขนาดคาปาซิเตอร์ที่ระบบต้องการ', Math.round(C) + ' µF (Microfarad)'],
+      ['สัดส่วนพลังงานสูญเสียที่ลดได้จากโหลดระบบ', ((P/pf1) - (P/pf2)).toFixed(1) + ' kVA']
+    ]);
+  });
+}
+
+function attachSepticTank() {
+  onSubmit('f-septic', function() {
+    var users = v('sep_users'), type = sv('sep_type');
+    if (isNaN(users) || users < 1) return showError('sep','กรุณาระบุจํานวนผู้พักอาศัยคนใช้ระบบงานอาคาร');
+    var flows = { hotel: 150, office: 40, restaurant: 100 };
+    var flow = (flows[type] || 100) * users;
+    var vol_tank = (flow * 1.5) / 1000; 
+
+    addHistory('septictank', vol_tank.toFixed(1) + ' m³');
+    showResult('sep', vol_tank.toFixed(2), 'm³ (ลูกบาศก์เมตร บ่อเกรอะ)', [
+      ['ปริมาตรพื้นที่บ่อซึมระบายน้ำทิ้ง', (vol_tank * 0.5).toFixed(2) + ' m³'],
+      ['มวลน้ำเสียตกค้างเฉลี่ยรายวัน', flow.toLocaleString() + ' ลิตรต่อวัน']
+    ]);
+  });
+}
+
+function attachSprinkler() {
+  onSubmit('f-sprinkler', function() {
+    var area = v('spr_area'), hazard = sv('spr_hazard');
+    if (isNaN(area) || area <= 0) return showError('spr','กรุณาระบุขนาดตารางเมตรของพื้นที่ส่วนงานอาคาร');
+    var coverage = { light: 9, ordinary: 12, extra: 6 };
+    var flow_per_head = { light: 80, ordinary: 100, extra: 120 };
+    var cov = coverage[hazard] || 9;
+    var heads = Math.ceil(area / cov);
+    var total_flow = heads * (flow_per_head[hazard] || 80);
+
+    addHistory('sprinkler', heads + ' หัว');
+    showResult('spr', heads.toString(), 'หัวจ่าย (จำนวนหัวสปริงเกลอร์ขั้นต่ำ)', [
+      ['ปริมาณน้ำดับเพลิงที่ต้องการรวม', total_flow.toLocaleString() + ' L/min'],
+      ['พื้นที่คุ้มครองต่อหนึ่งหัวตามกฎหมาย', cov + ' ตร.ม. / หัว']
+    ]);
+  });
+}
+
+function attachChlorine() {
+  onSubmit('f-chlorine', function() {
+    var w = v('cl_w'), l = v('cl_l'), d = v('cl_depth'), current = v('cl_current'), target = v('cl_target'), strength = parseFloat(sv('cl_type'));
+    if (isNaN(w) || isNaN(l) || isNaN(d) || w <= 0 || l <= 0 || d <= 0) return showError('cl','กรุณาระบุโครงสร้างขนาดกว้างยาวลึกสระน้ำ');
+    if (target <= current) return showError('cl','ระดับความเข้มข้นคลอรีนเป้าหมายต้องสูงกว่าค่าวิเคราะห์ปัจจุบัน');
+    
+    var vol_m3 = w * l * d;
+    var needed_ppm = target - current;
+    var chlorine_g = (needed_ppm * (vol_m3 * 1000)) / (1000 * (strength / 100));
+
+    addHistory('chlorine', Math.round(chlorine_g) + ' g');
+    showResult('cl', Math.round(chlorine_g).toLocaleString(), 'กรัม (g)', [
+      ['ปริมาตรมวลน้ำสระสุทธิ', vol_m3.toFixed(1) + ' คิว (m³)'],
+      ['ค่าความเข้มข้นสารคลอรีนที่ต้องยกเพิ่มขึ้น', needed_ppm + ' ppm'],
+      ['ระยะเวลารอสารเคมีกระจายตัวก่อนเปิดให้ใช้งาน', '≥ 30-45 นาที']
+    ], chlorine_g > 2500 ? 'ปริมาณเติมเคมีมีจำนวนมาก แนะนำให้แบ่งกระจายเติมรอบขอบสระเพื่อป้องกันเคมีตกค้างและค่า pH เปลี่ยนรุนแรง' : null);
+  });
+}
+
+function attachPoolCirc() {
+  onSubmit('f-poolcirc', function() {
+    var vol = v('pc_vol'), turnover = parseInt(sv('pc_turn'));
+    if (isNaN(vol) || vol <= 0) return showError('pc','กรุณาระบุมวลน้ำคิวของระบบสระว่ายน้ำอาคาร');
+    var flow_m3h = vol / turnover;
+    var flow_lmin = (flow_m3h * 1000) / 60;
+    var pump_kw = (flow_m3h / 3600 * 1000 * 9.81 * 15) / (0.65 * 1000);
+
+    addHistory('poolcirc', Math.round(flow_lmin) + ' L/min');
+    showResult('pc', Math.round(flow_lmin).toLocaleString(), 'L/min (อัตราไหลปั๊มที่ต้องทำได้)', [
+      ['ลูกบาศก์เมตรต่อชั่วโมง (m³/hr)', flow_m3h.toFixed(1) + ' m³/h'],
+      ['ประมาณขนาดมอเตอร์ปั๊มกรองน้ำแนะนำ', (pump_kw * 1.341).toFixed(1) + ' แรงม้า (HP)'],
+      ['เกณฑ์รอบชั่วโมงหมุนเปลี่ยนถ่ายน้ำคิวสระ', turnover + ' ชั่วโมงต่อรอบ']
+    ]);
+  });
+}
+
+function attachPMCost() {
+  onSubmit('f-pmcost', function() {
+    var workers = v('pm_workers'), wage = v('pm_wage'), days = v('pm_days'), parts = v('pm_parts'), overhead_pct = v('pm_overhead');
+    if (isNaN(workers) || workers < 1 || isNaN(days) || days < 1) return showError('pm','กรุณาใส่ข้อมูลฝ่ายช่างบำรุงรักษาให้ครบจำนวน');
+    var labor = workers * wage * days;
+    var subtotal = labor + parts;
+    var total = subtotal + (subtotal * overhead_pct / 100);
+
+    addHistory('pmcost', Math.round(total).toLocaleString() + ' บาท');
+    showResult('pm', Math.round(total).toLocaleString(), 'บาท/งบประมาณรายปี', [
+      ['ต้นทุนรวมเฉพาะค่าแรงแรงงานช่าง', labor.toLocaleString() + ' บาท'],
+      ['งบแปรผันอะไหล่และอุปกรณ์เปลี่ยนถ่ายประจำปี', parts.toLocaleString() + ' บาท'],
+      ['เฉลี่ยภาระค่าใช้จ่ายกระจายรายเดือน', Math.round(total / 12).toLocaleString() + ' บาท/เดือน']
+    ]);
+  });
+}
+
+function attachUnitConv() {
+  var activeTab = 0;
+  g('convTabs').querySelectorAll('.conv-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var idx = parseInt(this.dataset.tab);
+      activeTab = idx;
+      g('convTabs').querySelectorAll('.conv-tab').forEach(function(t) { t.classList.remove('active'); });
+      this.classList.add('active');
+      document.querySelectorAll('.conv-panel').forEach(function(p) {
+        p.style.display = parseInt(p.dataset.panel) === idx ? '' : 'none';
+      });
+    });
+  });
+
+  onSubmit('f-unitconv', function() {
+    var rows = [], main = '', unit = '';
+    switch(activeTab) {
+      case 0:
+        var bar = v('cv_p'); if (isNaN(bar)) bar = 0;
+        main = bar.toString(); unit = 'bar';
+        rows = [['ปอนด์ต่อตารางนิ้ว (psi)', (bar * 14.5038).toFixed(2)], ['กิโลปาสคาล (kPa)', (bar * 100).toFixed(1)], ['ความสูงเมตรน้ำ (mH₂O)', (bar * 10.1972).toFixed(2)]];
+        break;
+      case 1:
+        var lmin = v('cv_f'); if (isNaN(lmin)) lmin = 0;
+        main = lmin.toString(); unit = 'L/min';
+        rows = [['แกลลอนต่อนาทีสหรัฐ (GPM)', (lmin * 0.264172).toFixed(2)], ['ลูกบาศก์เมตรต่อชั่วโมง (m³/h)', (lmin * 0.06).toFixed(2)], ['ลิตรต่อวินาที (L/s)', (lmin / 60).toFixed(3)]];
+        break;
+      case 2:
+        var tFrom = sv('cv_t_from'), tVal = v('cv_t_val'); if (isNaN(tVal)) tVal = 0;
+        var C=0, F=0, K=0;
+        if (tFrom === 'C') { C=tVal; F=C*9/5+32; K=C+273.15; }
+        else if (tFrom === 'F') { F=tVal; C=(F-32)*5/9; K=C+273.15; }
+        else { K=tVal; C=K-273.15; F=C*9/5+32; }
+        main = C.toFixed(1); unit = '°C';
+        rows = [['องศาฟาเรนไฮต์ (°F)', F.toFixed(1)], ['องศาเคลวิน (K)', K.toFixed(1)]];
+        break;
+      case 3:
+        var m = v('cv_l'); if (isNaN(m)) m = 0;
+        main = m.toString(); unit = 'เมตร (m)';
+        rows = [['ฟุต (ft)', (m * 3.28084).toFixed(2)], ['นิ้ว (inch)', (m * 39.3701).toFixed(1)], ['เซนติเมตร (cm)', (m * 100).toFixed(0)]];
+        break;
+      case 4:
+        var kw = v('cv_pw'); if (isNaN(kw)) kw = 0;
+        main = kw.toString(); unit = 'kW';
+        rows = [['กำลังแรงม้า (HP Mechanical)', (kw * 1.34102).toFixed(2)], ['พิกัดความเย็นแอร์ (BTU/hr)', Math.round(kw * 3412.14).toLocaleString()]];
+        break;
+    }
+    addHistory('unitconv', main + ' ' + unit);
+    showResult('cv', main, unit, rows);
+  });
+}
+
+function attachArea3D() {
+  g('a3_shape').addEventListener('change', function() {
+    ['rect','circle','cylinder','tank_rect'].forEach(function(s) {
+      g('a3_'+s).style.display = 'none';
+    });
+    g('a3_'+this.value).style.display = '';
+  });
+
+  onSubmit('f-area3d', function() {
+    var shape = sv('a3_shape'), area = 0, vol = 0, rows = [];
+    switch(shape) {
+      case 'rect':
+        var rw = v('a3_rw'), rl = v('a3_rl');
+        if (rw <= 0 || rl <= 0) return showError('a3', 'กรุณาระบุค่ากว้างยาวมิติพื้นผิวอาคาร');
+        area = rw * rl;
+        rows = [['ความยาวรวมเส้นรอบรูปพื้นที่สี่เหลี่ยม', (2 * (rw + rl)) + ' เมตร']];
+        addHistory('area3d', area.toFixed(1) + ' m²');
+        showResult('a3', area.toFixed(2), 'ตร.ม. (m²)', rows);
+        break;
+      case 'circle':
+        var cd = v('a3_cd');
+        if (cd <= 0) return showError('a3', 'กรุณาระบุเส้นผ่าศูนย์กลางวงกลม');
+        area = Math.PI * Math.pow(cd / 2, 2);
+        rows = [['ระยะความยาวเส้นรอบรูปวงกลม', (Math.PI * cd).toFixed(2) + ' เมตร']];
+        addHistory('area3d', area.toFixed(2) + ' m²');
+        showResult('a3', area.toFixed(2), 'ตร.ม. (m²)', rows);
+        break;
+      case 'cylinder':
+        var cyd = v('a3_cyd'), cyh = v('a3_cyh');
+        if (cyd <= 0 || cyh <= 0) return showError('a3', 'กรุณาระบุมิติตัวถังเก็บน้ำทรงกระบอก');
+        vol = Math.PI * Math.pow(cyd / 2, 2) * cyh;
+        rows = [['ความจุหน่วยปริมาตรของน้ำเทียบเท่า', Math.round(vol * 1000).toLocaleString() + ' ลิตร'], ['ขนาดพื้นที่ผิวก้นหน้าตัดถังน้ำ', (Math.PI * Math.pow(cyd/2, 2)).toFixed(2) + ' ตร.ม.']];
+        addHistory('area3d', vol.toFixed(1) + ' m³');
+        showResult('a3', vol.toFixed(3), 'ม³ (คิว คอนกรีต/น้ำ)', rows);
+        break;
+      case 'tank_rect':
+        var tw = v('a3_tw'), tl = v('a3_tl'), th = v('a3_th');
+        if (tw <= 0 || tl <= 0 || th <= 0) return showError('a3', 'กรุณาระบุมิติกว้าง ยาว ลึก ก้นถังเก็บน้ำสำรอง');
+        vol = tw * tl * th;
+        rows = [['ปริมาตรความจุรวมหน่วยน้ำสุทธิ', Math.round(vol * 1000).toLocaleString() + ' ลิตร'], ['ขนาดพื้นที่ฐานก้นถังพักน้ำ', (tw * tl).toFixed(1) + ' ตร.ม.']];
+        addHistory('area3d', vol.toFixed(1) + ' m³');
+        showResult('a3', vol.toFixed(3), 'ม³ (คิว คอนกรีต/น้ำ)', rows);
+        break;
+    }
+  });
+}
+
+function doSearch(term) {
+  var homeContent = g('homeContent');
+  var searchResults = g('searchResults');
+
+  if (!term) {
+    homeContent.classList.remove('hidden');
+    searchResults.classList.add('hidden');
+    g('searchWrap').classList.remove('has-text');
+    return;
+  }
+
+  g('searchWrap').classList.add('has-text');
+  homeContent.classList.add('hidden');
+  searchResults.classList.remove('hidden');
+
+  var tools = allTools().filter(function(t) {
+    return t.calc.title.toLowerCase().includes(term.toLowerCase()) || 
+           t.calc.desc.toLowerCase().includes(term.toLowerCase()) || 
+           t.catName.toLowerCase().includes(term.toLowerCase());
+  });
+
+  g('searchCount').textContent = 'ตรวจพบเมนูเครื่องมือคำนวณทั้งหมด ' + tools.length + ' รายการ';
+  var noRes = g('noResults');
+
+  if (tools.length === 0) {
+    g('searchList').innerHTML = '';
+    noRes.classList.remove('hidden');
+    g('noResultTerm').textContent = term;
+  } else {
+    noRes.classList.add('hidden');
+    g('searchList').innerHTML = tools.map(function(t) {
+      return '<div class="tool-item" data-calc="' + t.calc.id + '" data-cat="' + t.catId + '">' +
+        '<div class="tool-icon">' + t.calc.icon + '</div>' +
+        '<div class="tool-info"><div class="tool-title">' + t.calc.title + '</div>' +
+        '<div class="tool-desc">' + t.catIcon + ' ' + t.catName + ' • ' + t.calc.desc + '</div></div>' +
+        '<div class="tool-arrow">›</div></div>';
+    }).join('');
+    g('searchList').querySelectorAll('.tool-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        g('searchInput').value = '';
+        doSearch('');
+        openCalculator(this.dataset.cat, this.dataset.calc);
+      });
+    });
+  }
+}
+
+function init() {
+  initHistory();
+  renderHome();
+  updateHistoryScreen();
+
+  var total = totalToolCount();
+  g('profileToolCount').textContent = 'ระบบวิศวกรรมพร้อมทำงานทั้งสิ้น ' + total + ' เมนูย่อย ครอบคลุม ' + Object.keys(calculators).length + ' ฟังก์ชันแกนหลัก';
+
+  g('backFromCat').addEventListener('click', showHome);
+  g('backFromCalc').addEventListener('click', function() {
+    if (currentCatId) openCategory(currentCatId);
+    else showHome();
+  });
+
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var nav = this.dataset.nav;
+      if (nav === 'home') showHome();
+      else if (nav === 'category') {
+        if (currentScreen === 'category' || currentScreen === 'calc') return;
+        showScreen('category');
+        openCategory('water');
+      }
+      else if (nav === 'history') { updateHistoryScreen(); showScreen('history'); }
+      else if (nav === 'profile') showScreen('profile');
+    });
+  });
+
+  var searchEl = g('searchInput');
+  var searchTimeout;
+  searchEl.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    var term = this.value.trim();
+    searchTimeout = setTimeout(function() { doSearch(term); }, 150);
+  });
+  g('clearSearch').addEventListener('click', function() {
+    searchEl.value = '';
+    doSearch('');
+    searchEl.focus();
+  });
+
+  g('clearHistoryBtn').addEventListener('click', function() {
+    if (confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติการคำนวณทั้งหมดในเครื่องนี้?')) {
+      calcHistory = [];
+      saveHistoryToStorage();
+      updateHistoryScreen();
+    }
+  });
+}
+
+function showHome() {
+  currentScreen = 'home';
+  g('searchInput').value = '';
+  doSearch('');
+  showScreen('home');
+  document.querySelectorAll('.nav-item').forEach(function(n) {
+    n.classList.remove('active');
+    if (n.dataset.nav === 'home') n.classList.add('active');
+  });
+}
+
+init();
+})();
+</script>
+</body>
+</html>
